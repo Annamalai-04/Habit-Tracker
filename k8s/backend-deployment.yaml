@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: habittracker-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: habittracker-backend
+  template:
+    metadata:
+      labels:
+        app: habittracker-backend
+    spec:
+      containers:
+        - name: habittracker-backend
+          image: annamalaikumar/habittracker-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MONGO_URI
+              value: "mongodb://mongodb:27017"

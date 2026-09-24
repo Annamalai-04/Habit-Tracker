@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: habittracker-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: habittracker-frontend
+  template:
+    metadata:
+      labels:
+        app: habittracker-frontend
+    spec:
+      containers:
+        - name: habittracker-frontend
+          image: annamalaikumar/habittracker-frontend:latest
+          ports:
+            - containerPort: 80
