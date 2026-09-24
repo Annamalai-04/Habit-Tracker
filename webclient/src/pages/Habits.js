@@ -37,7 +37,7 @@ export default function Habits({
         setError("");
 
         const response = await fetch(
-          "http://localhost:8080/api/habits"
+          "/api/habits"
         );
 
         if (!response.ok) {

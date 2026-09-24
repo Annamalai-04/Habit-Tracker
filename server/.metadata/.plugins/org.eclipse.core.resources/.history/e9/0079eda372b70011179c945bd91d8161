@@ -1,0 +1,65 @@
+package com.example.demo.entity;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "users")
+public class User {
+
+    @Id
+    private String id;
+
+    private String username;
+    private String name;
+    private String email;
+    private LocalDate dob;
+    private int rank;
+
+    private List<FollowingHabit> followingHabits = new ArrayList<>();
+
+    public static class FollowingHabit {
+
+        private String habitId;
+        private int days;
+        private LocalDate startedAt;
+        private LocalDate endAt;
+
+        public String getHabitId() {
+            return habitId;
+        }
+
+        public void setHabitId(String habitId) {
+            this.habitId = habitId;
+        }
+
+        public int getDays() {
+            return days;
+        }
+
+        public void setDays(int days) {
+            this.days = days;
+        }
+
+        public LocalDate getStartedAt() {
+            return startedAt;
+        }
+
+        public void setStartedAt(LocalDate startedAt) {
+            this.startedAt = startedAt;
+        }
+
+        public LocalDate getEndAt() {
+            return endAt;
+        }
+
+        public void setEndAt(LocalDate endAt) {
+            this.endAt = endAt;
+        }
+    }
+
+    // Generate getters/setters for the fields above.
+}

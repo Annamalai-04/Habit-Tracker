@@ -55,7 +55,7 @@ export default function AppRoutes({
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/users/${user.id}/following`,
+        `/api/users/${user.id}/following`,
         {
           method: "POST",
           headers: {
@@ -104,7 +104,7 @@ export default function AppRoutes({
     requireSignIn(async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/users/${user.id}/following/${id}`,
+          `/api/users/${user.id}/following/${id}`,
           {
             method: "DELETE",
             credentials: "include",
@@ -193,7 +193,7 @@ export default function AppRoutes({
   const handleLogout = async () => {
     try {
       // Logout from Spring Boot session
-      await fetch("http://localhost:8080/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -336,3 +336,4 @@ export default function AppRoutes({
     </>
   );
 }
+

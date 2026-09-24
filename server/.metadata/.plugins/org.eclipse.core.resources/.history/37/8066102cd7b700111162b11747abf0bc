@@ -1,0 +1,17 @@
+package com.example.demo.repository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.example.demo.entity.HabitTask;
+
+public interface HabitTaskRepository extends MongoRepository<HabitTask, String> {
+
+    List<HabitTask> findByUserIdAndTaskDateBetween( String userId,LocalDate start, LocalDate end );
+
+    HabitTask findByUserIdAndHabitIdAndTaskDate( String userId, String habitId,LocalDate taskDate);
+    
+    Optional<HabitTask> findByUserId(String userId);
+}

@@ -1,0 +1,80 @@
+package com.example.demo.controller;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.entity.HabitTask;
+import com.example.demo.entity.User;
+import com.example.demo.repository.HabitTaskRepository;
+import com.example.demo.repository.UserRepository;
+
+@RestController
+@RequestMapping("/api/users/{userId}/tracking")
+public class TrackingController {
+
+    private final UserRepository userRepository;
+    private final HabitTaskRepository habitTaskRepository;
+
+    public TrackingController(
+            UserRepository userRepository,
+            HabitTaskRepository habitTaskRepository) {
+
+        this.userRepository = userRepository;
+        this.habitTaskRepository = habitTaskRepository;
+    }
+
+    // ------------------------------------------------
+    // MONTHLY TRACKING
+    // ------------------------------------------------
+
+    @GetMapping
+    public ResponseEntity<?> getMonthlyTracking(
+            @PathVariable String userId,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        User user = userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        YearMonth yearMonth =
+                YearMonth.of(year, month);
+
+        LocalDate start =
+                yearMonth.atDay(1);
+
+        LocalDate end =
+                yearMonth.atEndOfMonth();
+
+        List<HabitTask> tasks =
+                habitTaskRepository
+                    .findByUserIdAndTaskDateBetween(
+                        userId,
+                        start,
+                        end
+                    );
+
+        return ResponseEntity.ok(
+                new TrackingResponse(
+                        year,
+                        month,
+                        user.getFollowingHabits(),
+                        tasks
+                )
+        );
+    }
+
+    public record TrackingResponse(
+            int year,
+            int month,
+            List<User.FollowingHabit> followingHabits,
+            List<HabitTask> tasks
+    ) {}
+}

@@ -30,7 +30,7 @@ function SignInModal({
       // -----------------------------------------------
 
       const response = await fetch(
-        "http://localhost:8080/api/auth/login",
+        "/api/auth/login",
         {
           method: "POST",
 
@@ -65,7 +65,7 @@ function SignInModal({
       // -----------------------------------------------
 
       const followingResponse = await fetch(
-        `http://localhost:8080/api/users/${data.userId}/following`,
+        `/api/users/${data.userId}/following`,
         {
           method: "GET",
           credentials: "include"

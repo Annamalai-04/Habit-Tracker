@@ -1,0 +1,141 @@
+name: Build and Deploy Habit Tracker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ------------------------------------------
+      # 1. Checkout GitHub repository
+      # ------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # ------------------------------------------
+      # 2. Setup Java
+      # ------------------------------------------
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ------------------------------------------
+      # 3. Build Spring Boot
+      # ------------------------------------------
+      - name: Build Spring Boot
+        working-directory: server
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test
+
+      # ------------------------------------------
+      # 4. Setup Node.js
+      # ------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: webclient/package-lock.json
+
+      # ------------------------------------------
+      # 5. Build React
+      # ------------------------------------------
+      - name: Build React
+        working-directory: webclient
+        run: |
+          npm ci
+          npm run build
+
+      # ------------------------------------------
+      # 6. Login to Docker Hub
+      # ------------------------------------------
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ------------------------------------------
+      # 7. Build Backend Docker image
+      # ------------------------------------------
+      - name: Build backend Docker image
+        run: |
+          docker build \
+            -t annamalaikumar/habittracker-backend:latest \
+            ./server
+
+      # ------------------------------------------
+      # 8. Build Frontend Docker image
+      # ------------------------------------------
+      - name: Build frontend Docker image
+        run: |
+          docker build \
+            -t annamalaikumar/habittracker-frontend:latest \
+            ./webclient
+
+      # ------------------------------------------
+      # 9. Push Backend image
+      # ------------------------------------------
+      - name: Push backend image
+        run: |
+          docker push annamalaikumar/habittracker-backend:latest
+
+      # ------------------------------------------
+      # 10. Push Frontend image
+      # ------------------------------------------
+      - name: Push frontend image
+        run: |
+          docker push annamalaikumar/habittracker-frontend:latest
+
+      # ------------------------------------------
+      # 11. Configure SSH
+      # ------------------------------------------
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      # ------------------------------------------
+      # 12. Deploy to EC2 Kubernetes
+      # ------------------------------------------
+      - name: Deploy to EC2
+        run: |
+          ssh \
+            -i ~/.ssh/ec2_key \
+            -o StrictHostKeyChecking=yes \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+            echo "Starting deployment..."
+
+            sudo k3s kubectl rollout restart deployment habittracker-backend
+
+            sudo k3s kubectl rollout restart deployment habittracker-frontend
+
+            echo "Waiting for backend..."
+            sudo k3s kubectl rollout status \
+              deployment habittracker-backend \
+              --timeout=180s
+
+            echo "Waiting for frontend..."
+            sudo k3s kubectl rollout status \
+              deployment habittracker-frontend \
+              --timeout=180s
+
+            echo "Current pods:"
+            sudo k3s kubectl get pods
+
+            echo "Deployment completed successfully."
+
+          EOF

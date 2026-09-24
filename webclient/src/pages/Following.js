@@ -24,7 +24,7 @@ export default function Following({
     const loadTracking = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/users/${user.id}/tracking`,
+          `/api/users/${user.id}/tracking`,
           {
             credentials: "include",
           },
@@ -291,3 +291,4 @@ export default function Following({
     </div>
   );
 }
+

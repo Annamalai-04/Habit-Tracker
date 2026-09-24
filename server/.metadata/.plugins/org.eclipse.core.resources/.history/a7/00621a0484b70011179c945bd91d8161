@@ -1,0 +1,176 @@
+package com.example.demo.controller;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.entity.Habit;
+import com.example.demo.entity.User;
+import com.example.demo.repository.HabitRepository;
+import com.example.demo.repository.UserRepository;
+
+@RestController
+@RequestMapping("/api/users/{userId}/following")
+public class FollowingController {
+
+    private final UserRepository userRepository;
+
+    private final HabitRepository habitRepository;
+
+    public FollowingController(
+            UserRepository userRepository,
+            HabitRepository habitRepository) {
+
+        this.userRepository = userRepository;
+        this.habitRepository = habitRepository;
+    }
+
+    // ------------------------------------------------
+    // GET FOLLOWING HABITS
+    // ------------------------------------------------
+
+    @GetMapping
+    public ResponseEntity<?> getFollowing(
+            @PathVariable("userId") String userId) {
+
+        return userRepository.findById(userId)
+                .map(user -> ResponseEntity.ok(
+                        user.getFollowingHabits()
+                ))
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build()
+                );
+    }
+
+    // ------------------------------------------------
+    // FOLLOW HABIT
+    // ------------------------------------------------
+
+    @PostMapping
+    public ResponseEntity<?> followHabit(
+            @PathVariable("userId") String userId,
+            @RequestBody FollowRequest request) {
+
+        User user = userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Habit habit = habitRepository.findById(request.habitId())
+                .orElse(null);
+
+        if (habit == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Habit not found");
+        }
+
+        // Check already following
+
+        boolean alreadyFollowing =
+                user.getFollowingHabits()
+                        .stream()
+                        .anyMatch(
+                            h -> h.getHabitId()
+                                  .equals(request.habitId())
+                        );
+
+        if (alreadyFollowing) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Already following this habit");
+        }
+
+        LocalDate startDate = LocalDate.now();
+
+        LocalDate endDate =
+                startDate.plusDays(request.days() - 1);
+
+        User.FollowingHabit followingHabit =
+                new User.FollowingHabit();
+
+        followingHabit.setHabitId(request.habitId());
+
+        followingHabit.setDays(request.days());
+
+        followingHabit.setStartedAt(startDate);
+
+        followingHabit.setEndAt(endDate);
+
+        user.getFollowingHabits().add(followingHabit);
+
+        userRepository.save(user);
+
+        // Increase follower count
+
+        habit.setFollowers(habit.getFollowers() + 1);
+
+        habitRepository.save(habit);
+
+        return ResponseEntity.ok(followingHabit);
+    }
+
+    // ------------------------------------------------
+    // UNFOLLOW HABIT
+    // ------------------------------------------------
+
+    @DeleteMapping("/{habitId}")
+    public ResponseEntity<?> unfollowHabit(
+            @PathVariable("userId") String userId,
+            @PathVariable("habitId") String habitId) {
+
+        User user = userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        boolean removed =
+                user.getFollowingHabits()
+                        .removeIf(
+                            h -> h.getHabitId().equals(habitId)
+                        );
+
+        if (!removed) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("You are not following this habit");
+        }
+
+        userRepository.save(user);
+
+        // Decrease follower count
+
+        habitRepository.findById(habitId)
+                .ifPresent(habit -> {
+
+                    if (habit.getFollowers() > 0) {
+
+                        habit.setFollowers(
+                                habit.getFollowers() - 1
+                        );
+
+                        habitRepository.save(habit);
+                    }
+                });
+
+        return ResponseEntity.ok(
+                "Habit unfollowed successfully"
+        );
+    }
+
+    // ------------------------------------------------
+    // REQUEST
+    // ------------------------------------------------
+
+    public record FollowRequest(
+            String habitId,
+            int days
+    ) {}
+
+}

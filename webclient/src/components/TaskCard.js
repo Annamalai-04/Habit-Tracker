@@ -75,7 +75,7 @@ export default function TaskPage({ user }) {
     try {
 
       const response = await fetch(
-        `http://localhost:8080/api/users/${user.id}/tasks`,
+        `/api/users/${user.id}/tasks`,
         {
           method: "POST",
 

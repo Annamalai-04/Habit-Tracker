@@ -1,0 +1,117 @@
+package com.example.demo.controller;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.entity.HabitTask;
+import com.example.demo.repository.HabitTaskRepository;
+
+@RestController
+@RequestMapping("/api/users/{userId}/tasks")
+public class TaskController {
+
+    private final HabitTaskRepository habitTaskRepository;
+
+    public TaskController(
+            HabitTaskRepository habitTaskRepository) {
+
+        this.habitTaskRepository = habitTaskRepository;
+    }
+
+    // ------------------------------------------------
+    // GET TODAY'S TASK
+    // ------------------------------------------------
+
+    @GetMapping("/today")
+    public ResponseEntity<?> getTodayTask(
+            @PathVariable String userId,
+            @RequestParam String habitId) {
+
+        HabitTask task =
+                habitTaskRepository
+                    .findByUserIdAndHabitIdAndTaskDate(
+                        userId,
+                        habitId,
+                        LocalDate.now()
+                    );
+
+        if (task == null) {
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(task);
+    }
+
+    // ------------------------------------------------
+    // SAVE TODAY'S TASK
+    // ------------------------------------------------
+
+    @PostMapping
+    public ResponseEntity<?> saveTask(
+            @PathVariable String userId,
+            @RequestBody TaskRequest request) {
+
+        LocalDate taskDate =
+                request.taskDate() != null
+                    ? request.taskDate()
+                    : LocalDate.now();
+
+        HabitTask task =
+                habitTaskRepository
+                    .findByUserIdAndHabitIdAndTaskDate(
+                        userId,
+                        request.habitId(),
+                        taskDate
+                    );
+
+        if (task == null) {
+            task = new HabitTask();
+
+            task.setUserId(userId);
+            task.setHabitId(request.habitId());
+            task.setTaskDate(taskDate);
+        }
+
+        task.setStatus(request.status());
+        task.setDurationMinutes(
+                request.durationMinutes()
+        );
+        task.setNote(request.note());
+
+        HabitTask saved =
+                habitTaskRepository.save(task);
+
+        return ResponseEntity.ok(saved);
+    }
+
+    // ------------------------------------------------
+    // GET TASKS FOR DATE RANGE
+    // ------------------------------------------------
+
+    @GetMapping
+    public ResponseEntity<List<HabitTask>> getTasks(
+            @PathVariable String userId,
+            @RequestParam LocalDate start,
+            @RequestParam LocalDate end) {
+
+        return ResponseEntity.ok(
+                habitTaskRepository
+                    .findByUserIdAndTaskDateBetween(
+                        userId,
+                        start,
+                        end
+                    )
+        );
+    }
+
+    public record TaskRequest(
+            String habitId,
+            LocalDate taskDate,
+            String status,
+            int durationMinutes,
+            String note
+    ) {}
+}

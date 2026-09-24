@@ -63,7 +63,7 @@ export default function Tracking({ followingHabits, user }) {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/api/users/${user.id}/tracking`,
+          `/api/users/${user.id}/tracking`,
           {
             method: "GET",
             credentials: "include"

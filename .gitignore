@@ -22,5 +22,3 @@ webclient/build/
 # OS
 .DS_Store
 Thumbs.dbserver/.metadata/
-
-server/.metadata/
