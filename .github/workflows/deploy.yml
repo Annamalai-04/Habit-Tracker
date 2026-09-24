@@ -31,7 +31,7 @@ jobs:
       # 3. Build Spring Boot
       # ------------------------------------------
       - name: Build Spring Boot
-        working-directory: server
+        working-directory: server/webserver
         run: |
           chmod +x gradlew
           ./gradlew clean build -x test
@@ -69,9 +69,9 @@ jobs:
       # ------------------------------------------
       - name: Build backend Docker image
         run: |
-          docker build \
-            -t annamalaikumar/habittracker-backend:latest \
-            ./server
+           docker build \
+           -t annamalaikumar/habittracker-backend:latest \
+           ./server/webserver
 
       # ------------------------------------------
       # 8. Build Frontend Docker image
