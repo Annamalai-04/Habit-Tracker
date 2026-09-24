@@ -1,0 +1,26 @@
+# Java / Gradle
+server/.gradle/
+server/build/
+server/bin/
+server/.settings/
+server/.classpath
+server/.project
+
+# React
+webclient/node_modules/
+webclient/build/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.dbserver/.metadata/
+
+server/.metadata/

@@ -1,0 +1,118 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7fb;
+}
+.page-container {
+  min-height: calc(100vh - 64px);
+}
+.habit-card {
+  border: 0;
+  overflow: hidden;
+  transition: 0.15s;
+}
+.habit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
+}
+.habit-image-wrap {
+  height: 190px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.habit-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.days-modal-backdrop,
+.task-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.days-modal,
+.task-overlay {
+  width: min(520px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+}
+.task-overlay {
+  width: min(720px, 100%);
+}
+.close-task {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f3f5;
+  font-size: 1.35rem;
+}
+.month-card {
+  border: 0;
+  border-radius: 16px;
+}
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.month-week-label {
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.month-day {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.month-day.completed {
+  background: #198754;
+  color: #fff;
+}
+.month-day.skipped {
+  background: #ffc107;
+}
+.month-day.incomplete {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+.month-day.future {
+  color: #adb5bd;
+}
+.summary-box {
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  background: #f8f9fa;
+}
+@media (max-width: 575px) {
+  .habit-image-wrap {
+    height: 165px;
+  }
+  .month-grid {
+    gap: 4px;
+  }
+  .month-day {
+    border-radius: 7px;
+    font-size: 0.68rem;
+  }
+}

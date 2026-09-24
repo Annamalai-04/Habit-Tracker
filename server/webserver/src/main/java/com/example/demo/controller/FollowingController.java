@@ -1,0 +1,399 @@
+package com.example.demo.controller;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.entity.Habit;
+import com.example.demo.entity.HabitTask;
+import com.example.demo.entity.User;
+import com.example.demo.repository.HabitRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.services.TrackingService;
+
+@RestController
+@RequestMapping("/api/users/{userId}/following")
+public class FollowingController {
+
+    private static final ZoneId ZONE =
+            ZoneId.of("Asia/Kolkata");
+
+    private final UserRepository userRepository;
+    private final HabitRepository habitRepository;
+    private final TrackingService taskTrackingService;
+
+    public FollowingController(
+            UserRepository userRepository,
+            HabitRepository habitRepository,
+            TrackingService taskTrackingService) {
+
+        this.userRepository =
+                userRepository;
+
+        this.habitRepository =
+                habitRepository;
+
+        this.taskTrackingService =
+                taskTrackingService;
+    }
+
+    // ==================================================
+    // GET FOLLOWING
+    // ==================================================
+
+    @GetMapping
+    public ResponseEntity<?> getFollowing(
+            @PathVariable("userId") String userId) {
+
+        User user =
+                userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound()
+                    .build();
+        }
+
+        List<Map<String, Object>> result =
+                new ArrayList<>();
+
+        for (User.FollowingHabit following
+                : user.getFollowingHabits()) {
+
+            Habit habit =
+                    habitRepository.findById(
+                        following.getHabitId()
+                    ).orElse(null);
+
+            if (habit == null) {
+                continue;
+            }
+
+            Map<String, Object> item =
+                    new HashMap<>();
+
+            item.put(
+                "id",
+                habit.getId()
+            );
+
+            item.put(
+                "name",
+                habit.getName()
+            );
+
+            item.put(
+                "description",
+                habit.getDescription()
+            );
+
+            item.put(
+                "image",
+                habit.getImage()
+            );
+
+            item.put(
+                "hardness",
+                habit.getHardness()
+            );
+
+            item.put(
+                "followers",
+                habit.getFollowers()
+            );
+
+            item.put(
+                "followDays",
+                following.getDays()
+            );
+
+            item.put(
+                "dateFollowed",
+                following.getDateFollowed()
+            );
+
+            item.put(
+                "startedAt",
+                following.getStartedAt()
+            );
+
+            item.put(
+                "endAt",
+                following.getEndAt()
+            );
+
+            result.add(item);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // ==================================================
+    // FOLLOW
+    // ==================================================
+
+    @PostMapping
+    public ResponseEntity<?> followHabit(
+            @PathVariable("userId") String userId,
+            @RequestBody FollowRequest request) {
+
+        User user =
+                userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Habit habit =
+                habitRepository.findById(request.getHabitId())
+                .orElse(null);
+
+        if (habit == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "error",
+                            "Habit not found"
+                    ));
+        }
+
+        int days = request.getDays();
+
+        if (days < 1 || days > 365) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "error",
+                            "Days must be between 1 and 365"
+                    ));
+        }
+
+        // Check if already following
+        boolean alreadyFollowing =
+                user.getFollowingHabits()
+                        .stream()
+                        .anyMatch(
+                                h -> h.getHabitId()
+                                        .equals(request.getHabitId())
+                        );
+
+        if (alreadyFollowing) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "error",
+                            "Habit already followed"
+                    ));
+        }
+
+        // ================================================
+        // FOLLOW DATES
+        // ================================================
+
+        LocalDate today =
+                LocalDate.now(ZONE);
+
+        LocalDate endDate =
+                today.plusDays(days - 1);
+
+        // ================================================
+        // USER FOLLOWING HABIT
+        // ================================================
+
+        User.FollowingHabit following =
+                new User.FollowingHabit();
+
+        following.setHabitId(
+                request.getHabitId()
+        );
+
+        following.setDays(days);
+
+        following.setDateFollowed(today);
+
+        following.setStartedAt(today);
+
+        following.setEndAt(endDate);
+
+        user.getFollowingHabits()
+                .add(following);
+
+        userRepository.save(user);
+
+        // ================================================
+        // UPDATE HABIT FOLLOWER COUNT
+        // ================================================
+
+        habit.setFollowers(
+                habit.getFollowers() + 1
+        );
+
+        habitRepository.save(habit);
+
+        // ================================================
+        // ADD HABIT TO USER'S HABITTASK DOCUMENT
+        // ================================================
+
+        taskTrackingService.addHabit(
+                userId,
+                request.getHabitId()
+        );
+
+        // ================================================
+        // RESPONSE TO REACT
+        // ================================================
+
+        Map<String, Object> result =
+                new HashMap<>();
+
+        result.put(
+                "id",
+                habit.getId()
+        );
+
+        result.put(
+                "name",
+                habit.getName()
+        );
+
+        result.put(
+                "description",
+                habit.getDescription()
+        );
+
+        result.put(
+                "image",
+                habit.getImage()
+        );
+
+        result.put(
+                "hardness",
+                habit.getHardness()
+        );
+
+        result.put(
+                "followers",
+                habit.getFollowers()
+        );
+
+        result.put(
+                "followDays",
+                days
+        );
+
+        result.put(
+                "dateFollowed",
+                today
+        );
+
+        result.put(
+                "startedAt",
+                today
+        );
+
+        result.put(
+                "endAt",
+                endDate
+        );
+
+        return ResponseEntity.ok(result);
+    }
+
+    // ==================================================
+    // UNFOLLOW
+    // ==================================================
+
+    @DeleteMapping("/{habitId}")
+    public ResponseEntity<?> unfollowHabit(
+            @PathVariable("userId") String userId,
+            @PathVariable("habitId") String habitId) {
+
+        User user =
+                userRepository.findById(userId)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound()
+                    .build();
+        }
+
+        boolean removed =
+                user.getFollowingHabits()
+                    .removeIf(
+                        h -> h.getHabitId()
+                              .equals(habitId)
+                    );
+
+        if (!removed) {
+
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                        "error",
+                        "Habit is not followed"
+                    ));
+        }
+
+        userRepository.save(user);
+
+        Habit habit =
+                habitRepository.findById(
+                    habitId
+                ).orElse(null);
+
+        if (habit != null) {
+
+            habit.setFollowers(
+                Math.max(
+                    0,
+                    habit.getFollowers() - 1
+                )
+            );
+
+            habitRepository.save(habit);
+        }
+
+        // Remove from active habitIds.
+        // Keep historical completed/skipped data.
+        taskTrackingService.removeHabit(
+            userId,
+            habitId
+        );
+
+        return ResponseEntity.ok(
+            Map.of(
+                "message",
+                "Habit unfollowed"
+            )
+        );
+    }
+
+    // ==================================================
+    // REQUEST
+    // ==================================================
+
+    public static class FollowRequest {
+
+        private String habitId;
+        private int days;
+
+        public String getHabitId() {
+            return habitId;
+        }
+
+        public void setHabitId(String habitId) {
+            this.habitId = habitId;
+        }
+
+        public int getDays() {
+            return days;
+        }
+
+        public void setDays(int days) {
+            this.days = days;
+        }
+    }
+}
