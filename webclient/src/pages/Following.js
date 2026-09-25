@@ -119,7 +119,7 @@ export default function Following({
 
   if (!followingHabits || followingHabits.length === 0) {
     return (
-      <div className="container py-5">
+      <div className="container py-5 pt-5">
         <h1 className="text-white">Following</h1>
 
         <div className="alert alert-info mt-4 text-white">
@@ -135,7 +135,7 @@ export default function Following({
           HEADER
       ================================================== */}
 
-      <div className="mb-4">
+      <div className="mb-4 pt-5">
         <h1 className="text-white">Following</h1>
 
         <p className="text-secondary text-white">Habits you are currently following.</p>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Navbar({
@@ -10,10 +10,11 @@ function Navbar({
   onSignUp,
   onLogout,
 }) {
-  return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container">
+  const [activePage, setActivePage] = useState("");
 
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark position-fixed w-100 z-3">
+      <div className="container">
         {/* Logo */}
         <Link className="navbar-brand" to="/habits">
           Habit Tracker
@@ -33,14 +34,15 @@ function Navbar({
         </button>
 
         <div className="collapse navbar-collapse" id="habitNav">
-
           <ul className="navbar-nav ms-auto">
-
             {/* Habits - always public */}
             <li className="nav-item">
               <Link
-                className="nav-link"
+                className={`nav-link ${
+                  activePage === "habits" ? "text-info" : "text-white"
+                }`}
                 to="/habits"
+                onClick={() => setActivePage("habits")}
               >
                 Habits
               </Link>
@@ -49,8 +51,13 @@ function Navbar({
             {/* Following */}
             <li className="nav-item">
               <button
-                className="nav-link btn btn-link"
-                onClick={onFollowing}
+                className={`nav-link btn btn-link ${
+                  activePage === "following" ? "text-info" : "text-white"
+                }`}
+                onClick={() => {
+                  setActivePage("following");
+                  onFollowing();
+                }}
               >
                 Following
               </button>
@@ -59,18 +66,21 @@ function Navbar({
             {/* Tracking */}
             <li className="nav-item">
               <button
-                className="nav-link btn btn-link"
-                onClick={onTracking}
+                className={`nav-link btn btn-link ${
+                  activePage === "tracking" ? "text-info" : "text-white"
+                }`}
+                onClick={() => {
+                  setActivePage("tracking");
+                  onTracking();
+                }}
               >
                 Tracking
               </button>
             </li>
-
           </ul>
 
           {/* Right side */}
           <div className="ms-lg-3">
-
             {!isSignedIn ? (
               <>
                 <button
@@ -80,30 +90,20 @@ function Navbar({
                   Sign In
                 </button>
 
-                <button
-                  className="btn btn-primary"
-                  onClick={onSignUp}
-                >
+                <button className="btn btn-primary" onClick={onSignUp}>
                   Create Account
                 </button>
               </>
             ) : (
               <>
-                <span className="text-white me-3">
-                  {user?.name}
-                </span>
+                <span className="text-white me-3">{user?.name}</span>
 
-                <button
-                  className="btn btn-outline-light"
-                  onClick={onLogout}
-                >
+                <button className="btn btn-outline-light" onClick={onLogout}>
                   Logout
                 </button>
               </>
             )}
-
           </div>
-
         </div>
       </div>
     </nav>
@@ -111,5 +111,3 @@ function Navbar({
 }
 
 export default Navbar;
-
-

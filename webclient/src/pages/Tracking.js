@@ -446,7 +446,7 @@ export default function Tracking({ followingHabits, user }) {
 
   if (loadingTracking) {
     return (
-      <div className="container py-5">
+      <div className="container py-5 ">
         <div className="text-center">
 
           <div
@@ -476,7 +476,7 @@ export default function Tracking({ followingHabits, user }) {
     followingHabits.length === 0
   ) {
     return (
-      <div className="container py-5">
+      <div className="container  pt-5">
 
         <h1 className="text-white">Tracking</h1>
 
@@ -493,7 +493,7 @@ export default function Tracking({ followingHabits, user }) {
   // --------------------------------------------------
 
   return (
-    <div className="container py-4">
+    <div className="container pb-1 "style={{ paddingTop: "70px" }}>
 
       <h1 className="mb-2 text-white">
         Tracking

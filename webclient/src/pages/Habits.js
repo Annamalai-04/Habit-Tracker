@@ -129,9 +129,9 @@ export default function Habits({
 
     return (
 
-      <div className="container py-4">
+      <div className="container py-3">
 
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center pt-5">
 
           <h1 className="text-white">Habits</h1>
 
@@ -179,7 +179,7 @@ export default function Habits({
 
       <div className="container py-4">
 
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex justify-content-between align-items-center pt-5">
 
           <h1 className="text-white">Habits</h1>
 
@@ -208,13 +208,13 @@ export default function Habits({
 
   return (
 
-    <div className="container py-4">
+    <div className="container pt-4">
 
       {/* ==================================================
           HEADER
       ================================================== */}
 
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 pt-5">
 
         <div>
 
