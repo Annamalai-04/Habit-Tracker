@@ -111,6 +111,28 @@ jobs:
       # 12. Deploy to EC2 Kubernetes
       # ------------------------------------------
       - name: Deploy to EC2
+      # ------------------------------------------
+      # 12. Copy Kubernetes MongoDB files to EC2
+      # ------------------------------------------
+      - name: Copy MongoDB Kubernetes files
+        run: |
+          ssh \
+            -i ~/.ssh/ec2_key \
+            -o StrictHostKeyChecking=yes \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p ~/habittracker-k8s"
+
+          scp \
+            -i ~/.ssh/ec2_key \
+            -o StrictHostKeyChecking=yes \
+            k8s/mongodb-pvc.yaml \
+            k8s/mongodb-deployment.yaml \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/habittracker-k8s/
+
+      # ------------------------------------------
+      # 13. Deploy to EC2 Kubernetes
+      # ------------------------------------------
+      - name: Deploy to EC2
         run: |
           ssh \
             -i ~/.ssh/ec2_key \
@@ -119,9 +141,20 @@ jobs:
 
             echo "Starting deployment..."
 
+            echo "Applying MongoDB persistent storage..."
+            sudo k3s kubectl apply -f ~/habittracker-k8s/mongodb-pvc.yaml
+            sudo k3s kubectl apply -f ~/habittracker-k8s/mongodb-deployment.yaml
+
+            echo "Restarting backend..."
             sudo k3s kubectl rollout restart deployment habittracker-backend
 
+            echo "Restarting frontend..."
             sudo k3s kubectl rollout restart deployment habittracker-frontend
+
+            echo "Waiting for MongoDB..."
+            sudo k3s kubectl rollout status \
+              deployment mongodb \
+              --timeout=180s
 
             echo "Waiting for backend..."
             sudo k3s kubectl rollout status \
@@ -132,6 +165,9 @@ jobs:
             sudo k3s kubectl rollout status \
               deployment habittracker-frontend \
               --timeout=180s
+
+            echo "PVC:"
+            sudo k3s kubectl get pvc
 
             echo "Current pods:"
             sudo k3s kubectl get pods
