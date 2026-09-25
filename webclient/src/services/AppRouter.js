@@ -1,3 +1,4 @@
+import API_URL from "./api";
 // ======================================================
 // ROUTES + NAVBAR
 // ======================================================
@@ -55,7 +56,7 @@ export default function AppRoutes({
 
     try {
       const response = await fetch(
-        `/api/users/${user.id}/following`,
+        `${API_URL}/api/users/${user.id}/following`,
         {
           method: "POST",
           headers: {
@@ -104,7 +105,7 @@ export default function AppRoutes({
     requireSignIn(async () => {
       try {
         const response = await fetch(
-          `/api/users/${user.id}/following/${id}`,
+          `${API_URL}/api/users/${user.id}/following/${id}`,
           {
             method: "DELETE",
             credentials: "include",
@@ -193,7 +194,7 @@ export default function AppRoutes({
   const handleLogout = async () => {
     try {
       // Logout from Spring Boot session
-      await fetch("/api/auth/logout", {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -336,4 +337,8 @@ export default function AppRoutes({
     </>
   );
 }
+
+
+
+
 

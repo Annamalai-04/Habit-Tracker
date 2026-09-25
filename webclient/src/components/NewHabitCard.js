@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import { useState } from "react";
 
 function NewHabitModel({
@@ -49,7 +50,7 @@ function NewHabitModel({
     try {
 
       const response = await fetch(
-        "/api/habits",
+        `${API_URL}/api/habits`,
         {
           method: "POST",
 
@@ -277,3 +278,7 @@ function NewHabitModel({
 }
 
 export default NewHabitModel;
+
+
+
+

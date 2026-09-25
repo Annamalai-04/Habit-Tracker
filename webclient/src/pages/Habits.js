@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import { useEffect, useMemo, useState } from "react";
 import HabitCard from "../components/HabitCard";
 import DaysModal from "../components/DaysCard";
@@ -37,7 +38,7 @@ export default function Habits({
         setError("");
 
         const response = await fetch(
-          "/api/habits"
+          `${API_URL}/api/habits`
         );
 
         if (!response.ok) {
@@ -132,7 +133,7 @@ export default function Habits({
 
         <div className="d-flex justify-content-between align-items-center">
 
-          <h1>Habits</h1>
+          <h1 className="text-white">Habits</h1>
 
           <button
             className="btn btn-primary"
@@ -180,7 +181,7 @@ export default function Habits({
 
         <div className="d-flex justify-content-between align-items-center">
 
-          <h1>Habits</h1>
+          <h1 className="text-white">Habits</h1>
 
           <button
             className="btn btn-primary"
@@ -217,9 +218,9 @@ export default function Habits({
 
         <div>
 
-          <h1>Habits</h1>
+          <h1 className="text-white">Habits</h1>
 
-          <p className="text-secondary mb-0">
+          <p className="text-secondary mb-0 text-white">
             Choose a habit and decide how many days you want
             to follow it.
           </p>
@@ -372,3 +373,7 @@ export default function Habits({
 
   );
 }
+
+
+
+

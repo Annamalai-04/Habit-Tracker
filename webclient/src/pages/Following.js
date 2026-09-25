@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import { useEffect, useState } from "react";
 
 export default function Following({
@@ -24,7 +25,7 @@ export default function Following({
     const loadTracking = async () => {
       try {
         const response = await fetch(
-          `/api/users/${user.id}/tracking`,
+          `${API_URL}/api/users/${user.id}/tracking`,
           {
             credentials: "include",
           },
@@ -119,9 +120,9 @@ export default function Following({
   if (!followingHabits || followingHabits.length === 0) {
     return (
       <div className="container py-5">
-        <h1>Following</h1>
+        <h1 className="text-white">Following</h1>
 
-        <div className="alert alert-info mt-4">
+        <div className="alert alert-info mt-4 text-white">
           You are not following any habits yet.
         </div>
       </div>
@@ -135,9 +136,9 @@ export default function Following({
       ================================================== */}
 
       <div className="mb-4">
-        <h1>Following</h1>
+        <h1 className="text-white">Following</h1>
 
-        <p className="text-secondary">Habits you are currently following.</p>
+        <p className="text-secondary text-white">Habits you are currently following.</p>
       </div>
 
       {/* ==================================================
@@ -291,4 +292,8 @@ export default function Following({
     </div>
   );
 }
+
+
+
+
 

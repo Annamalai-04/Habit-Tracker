@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -75,7 +76,7 @@ export default function TaskPage({ user }) {
     try {
 
       const response = await fetch(
-        `/api/users/${user.id}/tasks`,
+        `${API_URL}/api/users/${user.id}/tasks`,
         {
           method: "POST",
 
@@ -319,3 +320,7 @@ export default function TaskPage({ user }) {
     </div>
   );
 }
+
+
+
+

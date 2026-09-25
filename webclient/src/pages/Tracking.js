@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Tracking({ followingHabits, user }) {
@@ -63,7 +64,7 @@ export default function Tracking({ followingHabits, user }) {
 
       try {
         const response = await fetch(
-          `/api/users/${user.id}/tracking`,
+          `${API_URL}/api/users/${user.id}/tracking`,
           {
             method: "GET",
             credentials: "include"
@@ -477,7 +478,7 @@ export default function Tracking({ followingHabits, user }) {
     return (
       <div className="container py-5">
 
-        <h1>Tracking</h1>
+        <h1 className="text-white">Tracking</h1>
 
         <div className="alert alert-info mt-4">
           You are not following any habits yet.
@@ -494,7 +495,7 @@ export default function Tracking({ followingHabits, user }) {
   return (
     <div className="container py-4">
 
-      <h1 className="mb-2">
+      <h1 className="mb-2 text-white">
         Tracking
       </h1>
 
@@ -833,3 +834,7 @@ export default function Tracking({ followingHabits, user }) {
     </div>
   );
 }
+
+
+
+

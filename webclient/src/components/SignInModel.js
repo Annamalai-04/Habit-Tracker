@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import React, { useState } from "react";
 
 function SignInModal({
@@ -30,7 +31,7 @@ function SignInModal({
       // -----------------------------------------------
 
       const response = await fetch(
-        "/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           method: "POST",
 
@@ -65,7 +66,7 @@ function SignInModal({
       // -----------------------------------------------
 
       const followingResponse = await fetch(
-        `/api/users/${data.userId}/following`,
+        `${API_URL}/api/users/${data.userId}/following`,
         {
           method: "GET",
           credentials: "include"
@@ -242,3 +243,7 @@ function SignInModal({
 }
 
 export default SignInModal;
+
+
+
+

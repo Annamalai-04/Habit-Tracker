@@ -1,3 +1,4 @@
+import API_URL from "../services/api";
 import React, { useState } from "react";
 
 function SignUpModal({ onClose, onSignupSuccess, onOpenSignIn }) {
@@ -52,7 +53,7 @@ function SignUpModal({ onClose, onSignupSuccess, onOpenSignIn }) {
       // Register
       // -----------------------------------------------
 
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
 
         headers: {
@@ -83,7 +84,7 @@ function SignUpModal({ onClose, onSignupSuccess, onOpenSignIn }) {
       // Automatically login after successful signup
       // -----------------------------------------------
 
-      const loginResponse = await fetch("/api/auth/login", {
+      const loginResponse = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
 
         headers: {
@@ -289,3 +290,7 @@ function SignUpModal({ onClose, onSignupSuccess, onOpenSignIn }) {
 }
 
 export default SignUpModal;
+
+
+
+
